@@ -55,7 +55,5 @@ combined_output.md
 
 get_project.py
 get_project_front.py
-cron_sync_api.py
 
-poetry.lock
-pyproject.toml
+
