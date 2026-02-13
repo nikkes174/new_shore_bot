@@ -1,0 +1,14 @@
+version: "3.12"
+
+services:
+  bot:
+    build: .
+    container_name: lyda_bot
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - bot_data:/app/data
+
+volumes:
+  bot_data:
