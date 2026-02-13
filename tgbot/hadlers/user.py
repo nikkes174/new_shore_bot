@@ -200,18 +200,27 @@ async def start_day1_direct(callback: types.CallbackQuery):
 
 @router.callback_query(F.data == "pay")
 async def pay_handler(callback: types.CallbackQuery):
+
     text = (
-        "Перед покупкой не забудь ознакомиться с "
-        "<a href='https://telegra.ph/Publichnaya-oferta-o-zaklyuchenii-dogovora-ob-okazanii-informacionnyh-uslug-02-13'>договором оферты</a> "
-        "и "
-        "<a href='https://telegra.ph/POLITIKA-v-otnoshenii-obrabotki-personalnyh-dannyh-02-13-17'>политикой обработки персональных данных</a>."
+        "<b>7-дневная программа психологической поддержки «Новый берег»</b>\n\n"
+        "Формат: онлайн-доступ через Telegram-бот\n"
+        "Срок доступа: 7 дней\n\n"
+        "В программу входит:\n"
+        "• 7 аудио-подкастов\n"
+        "• Психологические практики\n"
+        "• Пошаговые задания\n"
+        "• Поддерживающие материалы\n\n"
+        "<b>Стоимость доступа: 2 900 ₽</b>\n\n"
+        "Перед покупкой ознакомьтесь с:\n"
+        "<a href='https://telegra.ph/Publichnaya-oferta-o-zaklyuchenii-dogovora-ob-okazanii-informacionnyh-uslug-02-13'>Договором оферты</a>\n"
+        "<a href='https://telegra.ph/POLITIKA-v-otnoshenii-obrabotki-personalnyh-dannyh-02-13-17'>Политикой обработки персональных данных</a>\n\n"
+        "Для получения доступа нажмите кнопку ниже."
     )
 
     await callback.message.answer(
         text,
         parse_mode="HTML",
-        disable_web_page_preview=True ,
-
+        disable_web_page_preview=True,
         reply_markup=payment_confirm_keyboard()
     )
 

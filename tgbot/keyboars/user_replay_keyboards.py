@@ -8,7 +8,7 @@ def start_keyboard():
 
     kb.add(
         InlineKeyboardButton(
-            text="Оплатить",
+            text="Оплатить 2 900 ₽",
             callback_data="pay"
         )
     )
@@ -25,7 +25,7 @@ def hesitate_keyboard():
     kb = InlineKeyboardBuilder()
     kb.add(
         InlineKeyboardButton(
-            text="Оплатить",
+            text="Оплатить 2 900 ₽",
             callback_data="pay"
         )
     )
@@ -44,7 +44,7 @@ def tips_keyboard():
     kb = InlineKeyboardBuilder()
     kb.add(
         InlineKeyboardButton(
-            text="Оплатить",
+            text="Оплатить 2 900 ₽",
             callback_data="pay"
         )
     )
@@ -63,7 +63,7 @@ def pay_only_keyboard():
     kb = InlineKeyboardBuilder()
     kb.add(
         InlineKeyboardButton(
-            text="Оплатить",
+            text="Оплатить 2 900 ₽",
             callback_data="pay"
         )
     )
@@ -359,7 +359,7 @@ def pay_or_start_keyboard():
 
     kb.add(
         InlineKeyboardButton(
-            text="Оплатить",
+            text="Оплатить 2 900 ₽",
             callback_data="pay"
         )
     )
