@@ -1,7 +1,6 @@
-from datetime import date, datetime, timedelta
+from datetime import date
 from typing import Optional
 
-import pytz
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -32,9 +31,7 @@ class UserCrud:
         return user
 
     async def get_users_list(self):
-        result = await self.session.execute(
-            select(UserModel)
-        )
+        result = await self.session.execute(select(UserModel))
         return result.scalars().all()
 
     async def get_user(self, user_id: int):

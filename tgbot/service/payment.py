@@ -34,12 +34,10 @@ class PaymentUtils:
         return await asyncio.to_thread(Payment.create, payload)
 
     async def create_payment(
-            self,
-
-            user_id: int,
-
+        self,
+        user_id: int,
     ):
-        return_url = "https://t.me/BlackGateGuard_bot"
+        return_url = "https://t.me/new_shore_bot"
 
         payload = {
             "amount": {"value": f"{self._amount:.2f}", "currency": "RUB"},
@@ -68,11 +66,11 @@ class PaymentUtils:
         return False, None
 
     async def check_payment_loop(
-            self,
-            payment_id: str,
-            user_id: int,
-            username: str,
-            bot,
+        self,
+        payment_id: str,
+        user_id: int,
+        username: str,
+        bot,
     ):
         if user_id in self.active_payment_users:
             return
@@ -99,7 +97,7 @@ class PaymentUtils:
 
                 await bot.send_message(
                     user_id,
-                    "🎉 Оплата прошла успешно! Материал первого дня уже доступен."
+                    "🎉 Оплата прошла успешно! Материал первого дня уже доступен.",
                 )
 
                 day_service = SenderService(bot, session)
@@ -108,10 +106,7 @@ class PaymentUtils:
             except Exception as e:
                 print("[PAYMENT LOOP ERROR]:", e)
                 try:
-                    await bot.send_message(
-                        user_id,
-                        "❌ Ошибка при обработке оплаты."
-                    )
+                    await bot.send_message(user_id, "❌ Ошибка при обработке оплаты.")
                 except:
                     pass
             finally:

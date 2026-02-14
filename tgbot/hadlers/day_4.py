@@ -3,30 +3,34 @@ from config import AUDIO_ID_DAY_4, DOCUMENT_ID_2
 from tgbot.keyboars.user_replay_keyboards import (
     day4_start_keyboard,
     day4_video_keyboard,
-    day4_done_keyboard
+    day4_done_keyboard,
 )
 
 router = Router()
 
 
-@router.message(F.text == "/day4")
-async def start_day4(message: types.Message):
+async def send_day4(bot, user_id: int):
 
     with open("files/4/1.txt", encoding="utf-8") as f:
         text = f.read()
 
-    await message.answer(
-        text,
-        reply_markup=day4_start_keyboard()
-    )
+    await bot.send_message(user_id, text, reply_markup=day4_start_keyboard())
+
+
+@router.message(F.text == "/day4")
+async def start_day4(message: types.Message):
+    await send_day4(message.bot, message.from_user.id)
+
+    with open("files/4/1.txt", encoding="utf-8") as f:
+        text = f.read()
+
+    await message.answer(text, reply_markup=day4_start_keyboard())
 
 
 @router.callback_query(F.data == "day4_podcast")
 async def day4_podcast(callback: types.CallbackQuery):
 
-    await callback.message.answer_audio(
-        AUDIO_ID_DAY_4
-    )
+    await callback.message.answer_audio(AUDIO_ID_DAY_4)
 
     await callback.answer()
 
@@ -45,10 +49,7 @@ async def day4_practice(callback: types.CallbackQuery):
         "Техника очень действенная."
     )
 
-    await callback.message.answer(
-        text,
-        reply_markup=day4_video_keyboard()
-    )
+    await callback.message.answer(text, reply_markup=day4_video_keyboard())
 
     await callback.answer()
 
@@ -57,8 +58,7 @@ async def day4_practice(callback: types.CallbackQuery):
 async def day4_video(callback: types.CallbackQuery):
 
     await callback.message.answer_document(
-        DOCUMENT_ID_2,
-        reply_markup=day4_done_keyboard()
+        DOCUMENT_ID_2, reply_markup=day4_done_keyboard()
     )
 
     await callback.answer()
@@ -70,7 +70,8 @@ async def day4_done(callback: types.CallbackQuery):
     text = (
         "Отлично.\n\n"
         "Постарайся на остаток дня исключить сладкое.\n"
-        "Замени его любыми физическими упражнениями."
+        "Замени его любыми физическими упражнениями.\n"
+        "Продолжим завтра"
     )
 
     await callback.message.answer(text)

@@ -16,29 +16,18 @@ from tgbot.service.day_scheduler import DayScheduler
 from tgbot.hadlers.day_5 import router as day_five_router
 from tgbot.hadlers.day_6 import router as day_six_router
 from tgbot.hadlers.day_7 import router as day_seven_router
-from datetime import datetime, timedelta
-from tgbot.hadlers.test_tools import router as test_router
+
 
 
 async def on_startup(bot: Bot):
 
     commands = [
         BotCommand(command="start", description="Перезапуск бота"),
-
     ]
 
+    await bot.set_my_commands(commands, scope=BotCommandScopeDefault())
 
-    await bot.set_my_commands(
-        commands,
-        scope=BotCommandScopeDefault()
-    )
-
-
-    await bot.set_chat_menu_button(
-        menu_button=MenuButtonCommands()
-    )
-
-
+    await bot.set_chat_menu_button(menu_button=MenuButtonCommands())
 
 
 async def main():
@@ -55,11 +44,10 @@ async def main():
     dp.include_router(day_five_router)
     dp.include_router(day_six_router)
     dp.include_router(day_seven_router)
-    dp.include_router(test_router)
 
     await on_startup(bot)
 
-    scheduler = DayScheduler(bot, send_time=time(hour=10, minute=0))
+    scheduler = DayScheduler(bot, send_time=time(hour=15, minute=40))
 
     asyncio.create_task(scheduler.start())
 

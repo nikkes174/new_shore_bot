@@ -4,33 +4,41 @@ from tgbot.keyboars.user_replay_keyboards import (
     day2_step2_keyboard,
     day2_podcast_keyboard,
     day2_listened_keyboard,
-    day2_done_keyboard,
+    day2_done_keyboard, day2_written_keyboard,
 )
 
 router = Router()
 
 
-# 🔹 Старт дня 2
+async def send_day2(bot, user_id: int):
+
+    with open("files/2/1.txt", encoding="utf-8") as f:
+        text1 = f.read()
+
+    await bot.send_message(user_id, text1)
+
+    with open("files/2/2.txt", encoding="utf-8") as f:
+        text2 = f.read()
+
+    await bot.send_message(user_id, text2, reply_markup=day2_step2_keyboard())
+
+
 @router.message(F.text == "/day2")
 async def start_day2(message: types.Message):
+    await send_day2(message.bot, message.from_user.id)
 
-    # 1️⃣ Первый текст
+
     with open("files/2/1.txt", encoding="utf-8") as f:
         text1 = f.read()
 
     await message.answer(text1)
 
-    # 2️⃣ Второй текст + кнопка
     with open("files/2/2.txt", encoding="utf-8") as f:
         text2 = f.read()
 
-    await message.answer(
-        text2,
-        reply_markup=day2_step2_keyboard()
-    )
+    await message.answer(text2, reply_markup=day2_step2_keyboard())
 
 
-# 🔹 Кнопка: "Прочитала. Готова делать эти шаги"
 @router.callback_query(F.data == "day2_step2")
 async def day2_step2(callback: types.CallbackQuery):
 
@@ -43,37 +51,36 @@ async def day2_step2(callback: types.CallbackQuery):
         "Слушай мой подкаст, это добавит тебе решительности."
     )
 
-    await callback.message.answer(
-        text,
-        reply_markup=day2_podcast_keyboard()
-    )
+    await callback.message.answer(text, reply_markup=day2_podcast_keyboard())
 
     await callback.answer()
 
-
-# 🔹 Кнопка: "Слушать подкаст"
-@router.callback_query(F.data == "day2_podcast")
-async def day2_podcast(callback: types.CallbackQuery):
-
-    await callback.message.answer_audio(
-        AUDIO_ID_DAY_2,
-        reply_markup=day2_listened_keyboard()
-    )
-
-    await callback.answer()
-
-
-# 🔹 Кнопка: "Прослушала подкаст"
 @router.callback_query(F.data == "day2_task")
 async def day2_task(callback: types.CallbackQuery):
 
-    # 1️⃣ Текст задания
-    with open("files/2/Assignment.txt", encoding="utf-8") as f:
-        assignment_text = f.read()
+    text = (
+        "Задание:\n"
+        "Составь список триггеров, которые могут привести тебя к срыву. "
+        "Составь план, как ты будешь справляться. "
+        "Включи в этот план данную технику и используй шаги и способы, "
+        "которые ты сегодня выучила."
+    )
 
-    await callback.message.answer(assignment_text)
+    await callback.message.answer(
+        text,
+        reply_markup=day2_written_keyboard()
+    )
 
-    # 2️⃣ Документ + кнопка
+    await callback.answer()
+
+@router.callback_query(F.data == "day2_written")
+async def day2_written(callback: types.CallbackQuery):
+
+    await callback.message.answer(
+        '<b>Техника "Растворение тяги"</b>',
+        parse_mode="HTML"
+    )
+
     await callback.message.answer_document(
         DOCUMENT_ID_2,
         reply_markup=day2_done_keyboard()
@@ -81,8 +88,18 @@ async def day2_task(callback: types.CallbackQuery):
 
     await callback.answer()
 
+@router.callback_query(F.data == "day2_podcast")
+async def day2_podcast(callback: types.CallbackQuery):
 
-# 🔹 Кнопка: "Сделала практику"
+    await callback.message.answer_audio(
+        AUDIO_ID_DAY_2, reply_markup=day2_listened_keyboard()
+    )
+
+    await callback.answer()
+
+
+
+
 @router.callback_query(F.data == "day2_done")
 async def day2_done(callback: types.CallbackQuery):
 
@@ -95,7 +112,4 @@ async def day2_done(callback: types.CallbackQuery):
     )
 
     await callback.message.answer(text)
-
-
-
-
+    await callback.answer()

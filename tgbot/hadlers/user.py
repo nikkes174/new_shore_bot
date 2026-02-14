@@ -1,26 +1,20 @@
-
-from tgbot.keyboars.user_replay_keyboards import start_keyboard, hesitate_keyboard, pay_only_keyboard, tips_keyboard, \
-    pay_or_start_keyboard, day1_next_keyboard, payment_confirm_keyboard
+import asyncio
+from tgbot.keyboars.user_replay_keyboards import (
+    start_keyboard,
+    hesitate_keyboard,
+    tips_keyboard,
+    pay_or_start_keyboard,
+    day1_next_keyboard,
+    payment_confirm_keyboard,
+)
 
 from aiogram import Router, F, types
 
+from tgbot.service.payment import PaymentUtils
+
 router = Router()
 
-
-
-# @router.message()
-# async def debug_all(message: types.Message):
-#     if message.video:
-#         print("VIDEO_ID:", message.video.file_id)
-#
-#     if message.document:
-#         print("DOCUMENT_ID:", message.document.file_id)
-#
-#     if message.video_note:
-#         print("VIDEO_NOTE_ID:", message.video_note.file_id)
-#
-#     if message.audio:
-#         print("AUDIO_ID:", message.audio.file_id)
+payment_utils = PaymentUtils()
 
 
 @router.message(F.text == "/start")
@@ -69,11 +63,7 @@ async def start(message: types.Message):
         "Готова сделать первый шаг к своему новому берегу?"
     )
 
-    await message.answer(
-        second_text,
-        reply_markup=start_keyboard()
-    )
-
+    await message.answer(second_text, reply_markup=start_keyboard())
 
 
 @router.callback_query(F.data == "hesitate")
@@ -94,12 +84,10 @@ async def hesitate_handler(callback: types.CallbackQuery):
         "Пока нет внутренней опоры, невозможно построить здоровые отношения, , даже с самым хорошим человеком."
     )
 
-    await callback.message.answer(
-        text,
-        reply_markup=hesitate_keyboard()
-    )
+    await callback.message.answer(text, reply_markup=hesitate_keyboard())
 
     await callback.answer()
+
 
 @router.callback_query(F.data == "more_tips")
 async def more_tips_handler(callback: types.CallbackQuery):
@@ -118,12 +106,10 @@ async def more_tips_handler(callback: types.CallbackQuery):
         "Только твои действия ведут к результату."
     )
 
-    await callback.message.answer(
-        text,
-        reply_markup=tips_keyboard()
-    )
+    await callback.message.answer(text, reply_markup=tips_keyboard())
 
     await callback.answer()
+
 
 @router.callback_query(F.data == "final_push")
 async def final_push_handler(callback: types.CallbackQuery):
@@ -144,19 +130,16 @@ async def final_push_handler(callback: types.CallbackQuery):
         "почувствовать облегчение и интерес к новому дню."
     )
 
-    await callback.message.answer(
-        text,
-        reply_markup=pay_or_start_keyboard()
-
-    )
+    await callback.message.answer(text, reply_markup=pay_or_start_keyboard())
 
     await callback.answer()
+
 
 from datetime import date
 from sqlalchemy import select
 from tgbot.db.db import AsyncSessionLocal
 from tgbot.db.models import UserModel
-from tgbot.keyboars.user_replay_keyboards import day1_next_keyboard
+
 
 @router.callback_query(F.data == "start_day1_direct")
 async def start_day1_direct(callback: types.CallbackQuery):
@@ -164,39 +147,32 @@ async def start_day1_direct(callback: types.CallbackQuery):
     async with AsyncSessionLocal() as session:
 
         result = await session.execute(
-            select(UserModel).where(
-                UserModel.user_id == callback.from_user.id
-            )
+            select(UserModel).where(UserModel.user_id == callback.from_user.id)
         )
         user = result.scalar_one_or_none()
 
-        # Если пользователя нет — создаём
         if not user:
             user = UserModel(
                 user_id=callback.from_user.id,
                 user_name=callback.from_user.username,
                 create_date=date.today(),
-                day=1
+                day=1,
             )
             session.add(user)
             await session.commit()
 
-        # Если есть — просто сбрасываем на 1 день
         else:
             user.day = 1
             user.create_date = date.today()
             await session.commit()
 
-    # Отправляем первый день
     with open("files/1/1.txt", encoding="utf-8") as f:
         text = f.read()
 
-    await callback.message.answer(
-        text,
-        reply_markup=day1_next_keyboard()
-    )
+    await callback.message.answer(text, reply_markup=day1_next_keyboard())
 
     await callback.answer()
+
 
 @router.callback_query(F.data == "pay")
 async def pay_handler(callback: types.CallbackQuery):
@@ -221,7 +197,32 @@ async def pay_handler(callback: types.CallbackQuery):
         text,
         parse_mode="HTML",
         disable_web_page_preview=True,
-        reply_markup=payment_confirm_keyboard()
+        reply_markup=payment_confirm_keyboard(),
+    )
+
+    await callback.answer()
+
+
+@router.callback_query(F.data == "create_payment")
+async def create_payment_handler(callback: types.CallbackQuery):
+
+    payment_id, confirmation_url = await payment_utils.create_payment(
+        user_id=callback.from_user.id
+    )
+
+    await callback.message.answer(
+        f'Нажмите <a href="{confirmation_url}">сюда, чтобы перейти к оплате</a>',
+        parse_mode="HTML",
+        disable_web_page_preview=True,
+    )
+
+    asyncio.create_task(
+        payment_utils.check_payment_loop(
+            payment_id=payment_id,
+            user_id=callback.from_user.id,
+            username=callback.from_user.username,
+            bot=callback.bot,
+        )
     )
 
     await callback.answer()
