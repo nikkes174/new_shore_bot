@@ -140,9 +140,22 @@ def day3_done_keyboard():
 
 def day4_start_keyboard():
     kb = InlineKeyboardBuilder()
-    kb.add(InlineKeyboardButton(text="Слушать подкаст", callback_data="day4_podcast"))
     kb.add(
-        InlineKeyboardButton(text="Техника «Диафрагма»", callback_data="day4_practice")
+        InlineKeyboardButton(
+            text="Слушать подкаст",
+            callback_data="day4_podcast"
+        )
+    )
+    kb.adjust(1)
+    return kb.as_markup()
+
+def day4_after_podcast_keyboard():
+    kb = InlineKeyboardBuilder()
+    kb.add(
+        InlineKeyboardButton(
+            text="Техника «Диафрагма»",
+            callback_data="day4_practice"
+        )
     )
     kb.adjust(1)
     return kb.as_markup()
