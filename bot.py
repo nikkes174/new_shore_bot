@@ -47,7 +47,7 @@ async def main():
 
     await on_startup(bot)
 
-    scheduler = DayScheduler(bot, send_time=time(hour=15, minute=40))
+    scheduler = DayScheduler(bot, send_time=time(hour=8, minute=0))
 
     asyncio.create_task(scheduler.start())
 
