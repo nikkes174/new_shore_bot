@@ -28,7 +28,8 @@ class SenderService:
         moscow_tz = pytz.timezone("Europe/Moscow")
         today = datetime.now(moscow_tz).date()
 
-        passed_days = user.day + 1
+        passed_days = (today - user.create_date).days + 1
+
 
         print(
             f"📊 user_id={user.user_id} | "

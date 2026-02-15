@@ -256,12 +256,3 @@ def pay_or_start_keyboard():
     return kb.as_markup()
 
 
-def payment_confirm_keyboard():
-    kb = InlineKeyboardBuilder()
-
-    kb.add(
-        InlineKeyboardButton(text="Перейти к оплате", callback_data="create_payment")
-    )
-
-    kb.adjust(1)
-    return kb.as_markup()

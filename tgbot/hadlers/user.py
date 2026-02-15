@@ -1,11 +1,14 @@
 import asyncio
+
+from aiogram.types import InlineKeyboardButton
+from aiogram.utils.keyboard import InlineKeyboardBuilder
+
 from tgbot.keyboars.user_replay_keyboards import (
     start_keyboard,
     hesitate_keyboard,
     tips_keyboard,
     pay_or_start_keyboard,
     day1_next_keyboard,
-    payment_confirm_keyboard,
 )
 
 from aiogram import Router, F, types
@@ -174,48 +177,40 @@ async def start_day1_direct(callback: types.CallbackQuery):
     await callback.answer()
 
 
+
+
+
+
 @router.callback_query(F.data == "pay")
 async def pay_handler(callback: types.CallbackQuery):
 
-    text = (
-        "<b>7-дневная программа психологической поддержки «Новый берег»</b>\n\n"
-        "Формат: онлайн-доступ через Telegram-бот\n"
-        "Срок доступа: 7 дней\n\n"
-        "В программу входит:\n"
-        "• 7 аудио-подкастов\n"
-        "• Психологические практики\n"
-        "• Пошаговые задания\n"
-        "• Поддерживающие материалы\n\n"
-        "<b>Стоимость доступа: 2 900 ₽</b>\n\n"
-        "Перед покупкой ознакомьтесь с:\n"
-        "<a href='https://telegra.ph/Publichnaya-oferta-o-zaklyuchenii-dogovora-ob-okazanii-informacionnyh-uslug-02-13'>Договором оферты</a>\n"
-        "<a href='https://telegra.ph/POLITIKA-v-otnoshenii-obrabotki-personalnyh-dannyh-02-13-17'>Политикой обработки персональных данных</a>\n\n"
-        "Для получения доступа нажмите кнопку ниже."
-    )
-
-    await callback.message.answer(
-        text,
-        parse_mode="HTML",
-        disable_web_page_preview=True,
-        reply_markup=payment_confirm_keyboard(),
-    )
-
-    await callback.answer()
-
-
-@router.callback_query(F.data == "create_payment")
-async def create_payment_handler(callback: types.CallbackQuery):
-
+    # создаём платёж СРАЗУ
     payment_id, confirmation_url = await payment_utils.create_payment(
         user_id=callback.from_user.id
     )
 
-    await callback.message.answer(
-        f'Нажмите <a href="{confirmation_url}">сюда, чтобы перейти к оплате</a>',
-        parse_mode="HTML",
-        disable_web_page_preview=True,
+    text = (
+        "<b>«Новый берег»\n7-дневная программа психологической поддержки </b>\n\n"
+       
+        "Для оплаты нажмите кнопку ниже."
     )
 
+    kb = InlineKeyboardBuilder()
+    kb.add(
+        InlineKeyboardButton(
+            text="Перейти к оплате",
+            url=confirmation_url
+        )
+    )
+    kb.adjust(1)
+
+    await callback.message.answer(
+        text,
+        parse_mode="HTML",
+        reply_markup=kb.as_markup()
+    )
+
+    # запускаем проверку оплаты
     asyncio.create_task(
         payment_utils.check_payment_loop(
             payment_id=payment_id,
@@ -226,3 +221,4 @@ async def create_payment_handler(callback: types.CallbackQuery):
     )
 
     await callback.answer()
+
